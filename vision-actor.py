@@ -34,7 +34,8 @@ def conf():
     parser.add_argument(
         "--openai_api_base",
         type=str,
-        default="http://nlp-in-477-l:8001/v1",
+        # default="http://nlp-in-477-l:8001/v1",
+        default="http://ucsc-real.soe.ucsc.edu:8000/v1",
         help="Model Server URL.",
     )
     # parser.add_argument('--model', type=str, default="McGill-NLP/Llama-3-8B-Web", help='Model to use for instruction extraction.')
@@ -43,8 +44,11 @@ def conf():
         type=str,
         # default="llava-hf/llava-v1.6-mistral-7b-hf",
         # default="Qwen/Qwen2-VL-7B-Instruct",
-        default="google/paligemma2-3b-ft-docci-448",
+        # default="google/paligemma2-3b-ft-docci-448",
         # default="llava-hf/llava-1.5-7b-hf",
+        # default="deepseek-ai/deepseek-vl2",
+        # default="Qwen/Qwen2.5-VL-7B-Instruct",
+        default="Qwen/Qwen2.5-7B-Instruct-1M",
         help="Model to use for instruction extraction.",
     )
     # parser.add_argument('--model', type=str, default="meta-llama/Llama-3.2-3B-Instruct", help='Model to use for instruction extraction.')

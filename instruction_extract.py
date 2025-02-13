@@ -9,8 +9,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from time import time
 
-from instructor import Mode
-from typing import Callable, List, Optional, Tuple, Type
+from typing import List, Optional
 
 # see: load environment variables from .env file
 load_dotenv()
@@ -21,8 +20,10 @@ class UserInfo(BaseModel):
 
 def conf():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--openai_api_base', type=str, default="http://nlp-in-477-l:8000/v1", help='Model Server URL.')
+    parser.add_argument('--openai_api_base', type=str, default="http://nlp-in-477-l:8001/v1", help='Model Server URL.')
     # parser.add_argument('--model', type=str, default="McGill-NLP/Llama-3-8B-Web", help='Model to use for instruction extraction.')
+    # parser.add_argument('--model', type=str, default="google/paligemma2-3b-ft-docci-448", help='Model to use for instruction extraction.')
+    # parser.add_argument('--model', type=str, default="Qwen/Qwen2-VL-7B-Instruct", help='Model to use for instruction extraction.')
     parser.add_argument('--model', type=str, default="meta-llama/Llama-3.1-8B-Instruct", help='Model to use for instruction extraction.')
     # parser.add_argument('--model', type=str, default="allenai/Llama-3.1-Tulu-3-8B-SFT", help='Model to use for instruction extraction.')
     # parser.add_argument('--model', type=str, default="meta-llama/Llama-3.2-3B-Instruct", help='Model to use for instruction extraction.')
