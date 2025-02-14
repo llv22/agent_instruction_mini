@@ -19,8 +19,8 @@ load_dotenv()
 class TaskWithActions(BaseModel):
     id: int
     description: str
-    thought: Optional[str]
-    memory: Optional[str]
+    # thought: Optional[str]
+    # memory: Optional[str]
     actions_to_be_performed: Optional[List[str]]
     result: Optional[str]
 
@@ -40,7 +40,8 @@ def conf():
     parser.add_argument(
         "--model",
         type=str,
-        default="meta-llama/Llama-3.1-8B-Instruct",
+        default="gpt-4o-mini",
+        # default="meta-llama/Llama-3.1-8B-Instruct",
         help="Model to use for instruction extraction.",
     )
     # parser.add_argument('--model', type=str, default="meta-llama/Llama-3.2-3B-Instruct", help='Model to use for instruction extraction.')
@@ -77,21 +78,27 @@ if __name__ == "__main__":
         model=model,
         messages=payload,
         temperature=temperature,
+        # n=3,
+        # logprobs=True,
+        # top_logprobs=3,  
     )
     print(
         f"\nTime taken: {time() - start:.2f}s, response: {r.choices[0].message.content}"
     )
 
     start = time()
-    client = instructor.from_openai(client, 
-                                    # mode=Mode.JSON
-                                    ) # see: refer to https://github.com/instructor-ai/instructor/discussions/806
-    response = client.chat.completions.create(
+    # client = instructor.from_openai(client, 
+    #                                 # mode=Mode.JSON
+    #                                 ) # see: refer to https://github.com/instructor-ai/instructor/discussions/806
+    response = client.beta.chat.completions.parse(
         model=model,
         messages=payload,
-        response_model=AgentQCriticOutput,
+        response_format=AgentQCriticOutput,
         temperature=temperature,
-        max_retries=1,
+        # max_retries=1,
+        n=3,
+        logprobs=True,
+        top_logprobs=3,  
     )
     print(
         f"\nTime taken: {time() - start:.2f}s, response: {response.model_dump_json()}"
