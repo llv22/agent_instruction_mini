@@ -67,9 +67,11 @@ def conf():
     )
     return parser.parse_args()
 
+
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
+
 
 if __name__ == "__main__":
     args = conf()
@@ -87,37 +89,44 @@ if __name__ == "__main__":
     )
     # Path to your image
     # image_path = "MCTSNode_SIMULATED_15_screenshot_som.png"
-    
-    for image_path in glob("*.png"):
+
+    for image_path in glob(
+        "2025-02-14_19-36-19_GenericActingAgentArgs_on_webarena.4_7/simulator/MCTSNode_SIMULATED_0_screenshot_som.png"
+    ):
         # Getting the Base64 string
         base64_image = encode_image(image_path)
-        
+
         payload = [
             {
-            "role": "user",
-            "content": [
-                {"type": "text", 
-                "text": "Currently our task is Navigate to the \'Best Sellers\' section of the website. Given the screenshot. Using the screenshot to decide which status of our task? Just output two fields, choice and the reason within 100 words, separated by `,`. A. finished B. in progress C. not started D. not applicable E. few progress"},
-                {
-                "type": "image_url",
-                # "image_url": {
-                #     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
-                # },
-                "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
-                },
-            ],
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": """Given a screenshot of a website, determine the status of the task: 'Navigate to the Best Sellers section.' Analyze the screenshot to assess progress and output two fields: choice and reason, separated by a comma. Keep the reason within 100 words. Select one of the following options for choice:**
+completed, The subtask has been successfully completed.
+close_to_completed, Only one simple action is needed to complete the subtask.
+in_progress, The subtask is ongoing and requires more than one action to complete.
+few_progress, Minimal or almost no progress has been made.
+impossible, The subtask cannot be completed due to website constraints.""",
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                    },
+                ],
             }
         ]
 
         options = [
-            "A. finished",
-            "B. in progress",
-            "C. not started",
-            "D. not applicable",
-            "E. few progress",
+            "completed",
+            "close_to_completed",
+            "in_progress",
+            "few_progress",
+            "impossible",
         ]
         start = time()
         choices = {}
+        choice_text = {}
         for _ in range(1):
             r = client.chat.completions.create(
                 model=model,
@@ -128,20 +137,22 @@ if __name__ == "__main__":
                 top_logprobs=5,
             )
             for i, choice in enumerate(r.choices):
-                # print(f"Choice {i + 1}: {choice.message.content}")
                 for index, option in enumerate(options):
                     if option in choice.message.content:
                         if index in choices:
                             choices[index] += 1
+                            choice_text[index] = choice.message.content
                         else:
                             choices[index] = 1
+                            choice_text[index] = choice.message.content
         print(f"Time taken: {time() - start:.2f}s")
         # Find the option with the highest count
         if choices:
             highest_index = max(choices, key=choices.get)
             highest_option = options[highest_index]
             highest_count = choices[highest_index]
-            print(f"For {image_path}, highest option: {highest_option} with count: {highest_count}")
+            print(
+                f"For {image_path}, highest option: `{highest_option}` with count: {highest_count} and the text is: `{choice_text[highest_index]}`"
+            )
         else:
             print(f"For {image_path}, No options found.")
-    
