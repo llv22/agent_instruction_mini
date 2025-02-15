@@ -4,7 +4,7 @@ This module extracts instructions using a specified model from OpenAI.
 
 import os
 import argparse
-import instructor
+from glob import glob
 import base64
 from pydantic import BaseModel
 from openai import OpenAI
@@ -87,61 +87,61 @@ if __name__ == "__main__":
     )
     # Path to your image
     # image_path = "MCTSNode_SIMULATED_15_screenshot_som.png"
-    image_path = "MCTSNode_SIMULATED_20_screenshot_som.jpg"
-
-    # Getting the Base64 string
-    base64_image = encode_image(image_path)
     
-    payload = [
-        {
-        "role": "user",
-        "content": [
-            {"type": "text", 
-             "text": "Currently our task is Navigate to the \'Best Sellers\' section of the website. Given the screenshot. Using the screenshot to decide which status of our task? Just output two fields, choice and the reason within 100 words, separated by `,`. A. finished B. in progress C. not started D. not applicable E. few progress"},
+    for image_path in glob("*.png"):
+        # Getting the Base64 string
+        base64_image = encode_image(image_path)
+        
+        payload = [
             {
-            "type": "image_url",
-            # "image_url": {
-            #     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
-            # },
-            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
-            },
-        ],
-        }
-    ]
+            "role": "user",
+            "content": [
+                {"type": "text", 
+                "text": "Currently our task is Navigate to the \'Best Sellers\' section of the website. Given the screenshot. Using the screenshot to decide which status of our task? Just output two fields, choice and the reason within 100 words, separated by `,`. A. finished B. in progress C. not started D. not applicable E. few progress"},
+                {
+                "type": "image_url",
+                # "image_url": {
+                #     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+                # },
+                "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                },
+            ],
+            }
+        ]
 
-    options = [
-        "A. finished",
-        "B. in progress",
-        "C. not started",
-        "D. not applicable",
-        "E. few progress",
-    ]
-    start = time()
-    for _ in range(10):
-        r = client.chat.completions.create(
-            model=model,
-            messages=payload,
-            temperature=temperature,
-            n=5,
-            logprobs=True,
-            top_logprobs=5,
-        )
-        print(f"Time taken: {time() - start:.2f}s")
+        options = [
+            "A. finished",
+            "B. in progress",
+            "C. not started",
+            "D. not applicable",
+            "E. few progress",
+        ]
+        start = time()
         choices = {}
-        for i, choice in enumerate(r.choices):
-            # print(f"Choice {i + 1}: {choice.message.content}")
-            for index, option in enumerate(options):
-                if option in choice.message.content:
-                    if index in choices:
-                        choices[index] += 1
-                    else:
-                        choices[index] = 1
+        for _ in range(1):
+            r = client.chat.completions.create(
+                model=model,
+                messages=payload,
+                temperature=temperature,
+                n=5,
+                logprobs=True,
+                top_logprobs=5,
+            )
+            for i, choice in enumerate(r.choices):
+                # print(f"Choice {i + 1}: {choice.message.content}")
+                for index, option in enumerate(options):
+                    if option in choice.message.content:
+                        if index in choices:
+                            choices[index] += 1
+                        else:
+                            choices[index] = 1
+        print(f"Time taken: {time() - start:.2f}s")
         # Find the option with the highest count
         if choices:
             highest_index = max(choices, key=choices.get)
             highest_option = options[highest_index]
             highest_count = choices[highest_index]
-            print(f"Highest option: {highest_option} with count: {highest_count}")
+            print(f"For {image_path}, highest option: {highest_option} with count: {highest_count}")
         else:
-            print("No options found.")
+            print(f"For {image_path}, No options found.")
     

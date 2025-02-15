@@ -28,6 +28,7 @@ if __name__ == "__main__":
     # model = "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
     # model = "meta-llama/llama-3.3-70b-instruct"
     # model = "deepseek-ai/deepseek-vl2"
+    # model = "gpt-4o"
     # model = "gpt-4o-mini"
     # model = "Qwen/Qwen2.5-VL-7B-Instruct"
     # model = "Qwen/Qwen2.5-7B-Instruct-1M"
